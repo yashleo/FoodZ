@@ -1,0 +1,6 @@
+@FoodZ_backend_HostAddress = http://localhost:5124
+
+GET {{FoodZ_backend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
