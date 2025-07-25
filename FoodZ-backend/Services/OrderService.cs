@@ -108,5 +108,30 @@ namespace Foodz.API.Services
 
             return _mapper.Map<OrderReadDto>(order);
         }
+
+        public async Task<OrderReadDto> OrderStatusChangeAsync(int orderId, bool isAdmin, OrderStatusChangeDto dto)
+        {
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.MenuItem)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+
+            if (order == null)
+                throw new Exception("Order not found.");
+
+            if (!isAdmin)
+                throw new Exception("Access denied. Admins only.");
+
+            if (!Enum.TryParse<OrderStatus>(dto.Status, true, out var statusEnum))
+                throw new Exception($"Invalid status: {dto.Status}");
+
+            order.Status = statusEnum;
+
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<OrderReadDto>(order);
+        }
+
+
     }
 }

@@ -59,6 +59,18 @@ namespace Foodz.API.Controllers
             return Ok(order);
         }
 
+        // PUT: api/Orders/5/status
+        [HttpPut("{orderId}/status")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> OrderStatusChange(int orderId, [FromBody] OrderStatusChangeDto dto)
+        {
+
+            var updatedOrder = await _orderService.OrderStatusChangeAsync(orderId, true, dto);
+
+            return Ok(updatedOrder);
+        }
+
+
         #region Helpers
         private int GetUserId()
         {

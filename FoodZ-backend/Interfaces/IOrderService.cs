@@ -8,5 +8,5 @@ public interface IOrderService
     Task<IEnumerable<OrderReadDto>> GetOrdersByUserIdAsync(int UserId);
     Task<IEnumerable<OrderReadDto>> GetAllOrdersAsync();
     Task<OrderReadDto> GetOrderByIdAsync(int orderId, int userId, bool isAdmin);
-
+    Task<OrderReadDto> OrderStatusChangeAsync(int orderId, bool isAdmin, OrderStatusChangeDto dto);
 }
