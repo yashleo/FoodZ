@@ -18,7 +18,7 @@ public class FoodZDbContext : DbContext
         base.OnModelCreating(modelBuilder);
         // Composite PK for OrderItem
         modelBuilder.Entity<OrderItem>()
-            .HasKey(oi => new { oi.OrderID, oi.MenuItemID });
+            .HasKey(oi => new { oi.OrderId, oi.MenuItemId });
 
         // User -> Orders (One to many)
         modelBuilder.Entity<Order>()
@@ -32,17 +32,17 @@ public class FoodZDbContext : DbContext
             .HasOne(o => o.DeliveryPersonnel)
             .WithOne(dp => dp.Order)
             .HasForeignKey<Order>(o => o.DeliveryPersonnelId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Cascade);
 
         // OrderItem -> Order & MenuItem (many to many via orderitem)
         modelBuilder.Entity<OrderItem>()
             .HasOne(oi => oi.Order)
             .WithMany(o => o.OrderItems)
-            .HasForeignKey(oi => oi.OrderID);
+            .HasForeignKey(oi => oi.OrderId);
 
         modelBuilder.Entity<OrderItem>()
             .HasOne(oi => oi.MenuItem)
             .WithMany(mi => mi.OrderItems)
-            .HasForeignKey(oi => oi.MenuItemID);
+            .HasForeignKey(oi => oi.MenuItemId);
     }
 }

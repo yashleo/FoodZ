@@ -5,10 +5,11 @@ namespace Foodz.API.Entitities;
 public class DeliveryPersonnel
 {
     public int Id { get; set; } // PK
-    public string Name { get; set; }
-    public string VehicleId { get; set; }
-    public string ContactNumber { get; set; }
+    public string Name { get; set; } = "";
+    public string VehicleId { get; set; } = "";
+    public string ContactNumber { get; set; } = "";
     public bool AvailabilityStatus { get; set; }
 
-    public Order Order { get; set; }
+    public Order? Order { get; set; }
+    public DateTime CreatedAt { get; internal set; }
 }

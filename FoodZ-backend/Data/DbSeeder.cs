@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace FoodOrderingSystem.API.Data
+namespace Foodz.API.Data
 {
     public class DbSeeder
     {
@@ -35,7 +35,7 @@ namespace FoodOrderingSystem.API.Data
                     ContactNumber = "8888888888",
                     PasswordHash = userHash,
                     PasswordSalt = userSalt,
-                    Role = UserRole.Customer
+                    Role = UserRole.User
                 };
 
                 await context.Users.AddRangeAsync(admin, user);

@@ -15,7 +15,7 @@ public class Order
 
     public int DeliveryPersonnelId { get; set; } // FK
 
-    public User User { get; set; }
-    public DeliveryPersonnel DeliveryPersonnel { get; set; }
-    public ICollection<OrderItem> OrderItems { get; set; }
+    public  User User { get; set; } = new User();
+    public DeliveryPersonnel DeliveryPersonnel { get; set; } = new DeliveryPersonnel();
+    public ICollection<OrderItem> OrderItems { get; set; } = [];
 }

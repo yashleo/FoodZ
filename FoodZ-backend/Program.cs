@@ -1,79 +1,111 @@
-using Microsoft.EntityFrameworkCore;
 using Foodz.API.Data;
-
+using Foodz.API.Interfaces;
+using Foodz.API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
+using AutoMapper;
+using Foodz.API.Profiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// ✅ 1. Add DB Context
+builder.Services.AddDbContext<FoodZDbContext>(options =>
+{
+    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnectionString"),
+    ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnectionString")));
+}
+);
+
+// ✅ 2. Add AutoMapper
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
+
+// ✅ 3. Register Services
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IMenuItemService, MenuItemService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IDeliveryPersonnelService, DeliveryPersonnelService>();
+builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+
+// ✅ 4. Add Controllers
+builder.Services.AddControllers();
+
+// ✅ 5. Configure JWT Authentication
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var secretKey = jwtSettings.GetValue<string>("SecretKey");
+
+// Add configuration sources if needed (default loads appsettings.json)
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
+            )
+        };
+    });
+
+
+// ✅ 6. Swagger with JWT Support
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "FoodZ API", Version = "v1" });
+
+    var jwtSecurityScheme = new OpenApiSecurityScheme
+    {
+        BearerFormat = "JWT",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        Description = "Enter JWT token in the format: Bearer {your token}",
+        Reference = new OpenApiReference
+        {
+            Id = JwtBearerDefaults.AuthenticationScheme,
+            Type = ReferenceType.SecurityScheme
+        }
+    };
+
+    c.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        { jwtSecurityScheme, Array.Empty<string>() }
+    });
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ✅ Apply Migrations Automatically (Optional in Dev)
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<FoodZDbContext>();
+    db.Database.Migrate();
+    _ = DbSeeder.SeedAsync(db); // If you have a seeder method
+}
+
+// ✅ Use Swagger
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+// ✅ Enable Middleware Pipeline
 app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};`
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
-
-
-
-// using Microsoft.EntityFrameworkCore;
-// using FoodOrderingSystem.API.Data;
- 
-// var builder = WebApplication.CreateBuilder(args);
- 
-// builder.Services.AddDbContext<FoodZDbContext>(options =>
-//     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
- 
-// // Enum as strings globally:
-// builder.Services.AddControllers()
-//     .AddJsonOptions(options =>
-//     {
-//         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-//     });
- 
-// var app = builder.Build();
- 
-// using (var scope = app.Services.CreateScope())
-// {
-//     var services = scope.ServiceProvider;
-//     var context = services.GetRequiredService<FoodZDbContext>();
-//     await context.Database.MigrateAsync(); // Apply migrations
-//     await DbSeeder.SeedAsync(context);     // Seed initial data
-// }
- 
-// app.MapControllers();
-// app.Run();
- 

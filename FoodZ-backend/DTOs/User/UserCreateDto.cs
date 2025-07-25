@@ -1,6 +1,6 @@
 namespace Foodz.API.DTOs.User;
 
-public class UserReadDto
+public class UserCreateDto
 {
     public int Id { get; set; }
     public string Name { get; set; } = "";

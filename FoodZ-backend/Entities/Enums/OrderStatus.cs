@@ -6,5 +6,6 @@ public enum OrderStatus
     Preparing,
     OutForDelivery,
     Delivered,
-    Cancelled
+    Cancelled,
+    Pending
 }
