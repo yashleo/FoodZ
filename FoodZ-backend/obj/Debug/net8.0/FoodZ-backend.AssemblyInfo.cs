@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FoodZ-backend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+053b63debdcb41999b92a6ecdfe10d91c3b3072e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8ddfd3d0e1c6e1408d49a851789d4af79fcfbb1b")]
 [assembly: System.Reflection.AssemblyProductAttribute("FoodZ-backend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FoodZ-backend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
